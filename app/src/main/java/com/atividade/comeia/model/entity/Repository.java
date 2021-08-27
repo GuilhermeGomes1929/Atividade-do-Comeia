@@ -1,5 +1,7 @@
 package com.atividade.comeia.model.entity;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Repository {
@@ -70,5 +72,11 @@ public class Repository {
 
     public void setStars(Integer stars) {
         this.stars = stars;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return name+"\n";
     }
 }

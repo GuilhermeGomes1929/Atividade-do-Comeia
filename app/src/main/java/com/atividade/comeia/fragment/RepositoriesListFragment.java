@@ -20,8 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.atividade.comeia.R;
+import com.atividade.comeia.model.entity.Message;
 import com.atividade.comeia.utils.CustomAdapter;
 import com.atividade.comeia.viewmodel.MainActivityViewModel;
+
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 
 public class RepositoriesListFragment extends Fragment {
 
@@ -29,6 +34,7 @@ public class RepositoriesListFragment extends Fragment {
     private MainActivityViewModel viewModel;
     private Boolean isScrolling = false;
     private int currentItems, totalItems, scrollOutItems;
+    private AlertDialog.Builder alertDialog;
 
     public RepositoriesListFragment() {
         // Required empty public constructor
@@ -38,6 +44,7 @@ public class RepositoriesListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        alertDialog = new AlertDialog.Builder(getActivity());
     }
 
     @Override
@@ -46,7 +53,6 @@ public class RepositoriesListFragment extends Fragment {
         fragment = inflater.inflate(R.layout.fragment_repositories_list, container, false);
 
         setupList();
-        setupResultCounts();
 
         return fragment;
     }
@@ -57,9 +63,7 @@ public class RepositoriesListFragment extends Fragment {
         RecyclerView recyclerView = fragment.findViewById(R.id.repositories_list);
         LinearLayoutManager manager = new LinearLayoutManager(getActivity().getApplicationContext());
         ProgressBar progressBar =fragment.findViewById(R.id.progress_bar);
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        alertDialog.setTitle("Limite de requisições atingido");
-        alertDialog.setMessage("Aguarde um momento e tente novamente");
+        TextView resultsCount = fragment.findViewById(R.id.repositories_count);
 
 
         recyclerView.setAdapter(customAdapter);
@@ -68,12 +72,17 @@ public class RepositoriesListFragment extends Fragment {
         viewModel.getResult().observe(getActivity(), result ->{
             customAdapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
-
+            NumberFormat numberFormat = NumberFormat.getNumberInstance();
+            if(viewModel.getResultsCount() != null){
+                resultsCount.setText(numberFormat.format(viewModel.getResultsCount())+" resultados encontrados...");
+            }
         });
 
-        viewModel.getMessage().observe(getActivity(), message -> {
+        viewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null){
+                showMessage(message);
+            }
             progressBar.setVisibility(View.GONE);
-            alertDialog.create().show();
         });
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -92,22 +101,19 @@ public class RepositoriesListFragment extends Fragment {
                 totalItems = manager.getItemCount();
                 scrollOutItems = manager.findFirstVisibleItemPosition();
 
-                if (isScrolling && (currentItems + scrollOutItems == totalItems)){
+                if (isScrolling && (currentItems + scrollOutItems == totalItems) && dy > 0){
                     isScrolling = false;
                     progressBar.setVisibility(View.VISIBLE);
-                    viewModel.doRequest(viewModel.getNextPage().getValue().toString());
+                    viewModel.doRequest();
                 }
             }
         });
     }
 
-    private void setupResultCounts(){
-
-        TextView resultsCount = fragment.findViewById(R.id.repositories_count);
-
-        viewModel.getResultsCount().observe(getActivity(), count->{
-            resultsCount.setText(count+" resultados encontrados...");
-        });
-
+    private void showMessage(Message message){
+        alertDialog.setTitle(message.getTitle());
+        alertDialog.setMessage(message.getMessage());
+        alertDialog.create().show();
     }
+
 }

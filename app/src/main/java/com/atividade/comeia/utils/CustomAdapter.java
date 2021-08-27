@@ -65,7 +65,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.CustomView
 
         //Set stars count
         if (repository.getStars() != null){
-            if (repository.getStars().toString().length() > 3 && repository.getStars().toString().length() < 6){
+            if (repository.getStars().toString().length() > 3 && repository.getStars().toString().length() <= 6){
                 String stars = repository.getStars().toString();
                 holder.getLike().setText(stars.substring(0, stars.length() - 3)+ "k");
             }else if (repository.getStars().toString().length() > 6){
