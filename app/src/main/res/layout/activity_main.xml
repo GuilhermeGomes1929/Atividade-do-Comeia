@@ -15,8 +15,7 @@
         android:background="#FF1B1B1B"
         android:padding="15dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:id="@+id/search_repositories"
