@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setSupportActionBar(findViewById(R.id.toolbar));
-
         viewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         setupSearchBtn();
 
